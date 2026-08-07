@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple JavaScript CRUD</title>
+</head>
+<body>
+
+    <h1>Student CRUD System</h1>
+    <input type="hidden" id="editIndex" value="-1">
+    
+    <label>Student Name:</label>
+    <input type="text" id="studentName">
+    <br><br>
+    
+    <label>Course:</label>
+    <input type="text" id="studentCourse">
+    <br><br>
+    
+    <input type="button" onclick="saveStudent()" value="Save Student">
+    <button onclick="clearForm()">Cancel</button>
+    
+    <hr>
+    
+    <h2>Student Records</h2>
+    <table border="1" cellpadding="10">
+        <thead>
+            <tr>
+                <th>Number</th>
+                <th>Name</th>
+                <th>Course</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="studentTable">
+        </tbody>
+    </table>
+
+    <script>
+        // Array used as temporary storage
+        let students = [];
+
+        // CREATE and UPDATE
+        function saveStudent() {
+            let name = document.getElementById("studentName").value;
+            let course = document.getElementById("studentCourse").value;
+            let editIndex = parseInt(document.getElementById("editIndex").value);
+
+            if (name == "" || course == "") {
+                alert("Please complete all fields.");
+                return;
+            }
+
+            if (editIndex == -1) {
+                // CREATE
+                let newStudent = {
+                    name: name,
+                    course: course
+                };
+                // Add data without using push()
+                students[students.length] = newStudent;
+                alert("Student added successfully.");
+            } else {
+                // UPDATE
+                students[editIndex].name = name;
+                students[editIndex].course = course;
+                alert("Student updated successfully.");
+            }
+
+            clearForm();
+            displayStudents();
+        }
+
+        // READ
+        function displayStudents() {
+            let table = document.getElementById("studentTable");
+            table.innerHTML = "";
+
+            if (students.length == 0) {
+                table.innerHTML = "<tr>" +
+                    "<td colspan='4'>No student records found.</td>" +
+                    "</tr>";
+                return;
+            }
+
+            for (let index = 0; index < students.length; index++) {
+                table.innerHTML +=
+                    "<tr>" +
+                    "<td>" + (index + 1) + "</td>" +
+                    "<td>" + students[index].name + "</td>" +
+                    "<td>" + students[index].course + "</td>" +
+                    "<td>" +
+                    "<button onclick='editStudent(" + index + ")'>Edit</button> " +
+                    "<button onclick='deleteStudent(" + index + ")'>Delete</button>" +
+                    "</td>" +
+                    "</tr>";
+            }
+        }
+
+        // Select a student for editing
+        function editStudent(index) {
+            document.getElementById("studentName").value = students[index].name;
+            document.getElementById("studentCourse").value = students[index].course;
+            document.getElementById("editIndex").value = index;
+        }
+
+        // DELETE
+        function deleteStudent(index) {
+            let answer = confirm("Are you sure you want to delete this student?");
+            if (answer == false) {
+                return;
+            }
+
+            /*
+               Move every item after the selected index
+               one position to the left.
+            */
+            for (let position = index; position < students.length - 1; position++) {
+                students[position] = students[position + 1];
+            }
+
+            // Reduce the array length to remove the last duplicate item
+            students.length = students.length - 1;
+
+            clearForm();
+            displayStudents();
+            alert("Student deleted successfully.");
+        }
+
+        // Clear the input fields
+        function clearForm() {
+            document.getElementById("studentName").value = "";
+            document.getElementById("studentCourse").value = "";
+            document.getElementById("editIndex").value = "-1";
+        }
+
+        // Initially display the empty table
+        displayStudents();
+    </script>
+</body>
+</html>
