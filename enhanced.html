@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Enhanced Student CRUD System</title>
+</head>
+<body>
+
+    <h1>Student CRUD System</h1>
+    <input type="hidden" id="editIndex" value="-1">
+    
+    
+    <label>Student ID:</label>
+    <input type="text" id="studentId">
+    <br><br>
+
+    <label>Student Name:</label>
+    <input type="text" id="studentName">
+    <br><br>
+    
+    <label>Course:</label>
+    <input type="text" id="studentCourse">
+    <br><br>
+    
+    <input type="button" onclick="saveStudent()" value="Save Student">
+    <button onclick="clearForm()">Cancel</button>
+    
+    <hr>
+    
+   
+    <h2>Student Records</h2>
+    
+    <label>Search Student (ID or Name):</label>
+    <input type="text" id="searchInput" oninput="searchStudents()">
+    <button onclick="sortByName()">Sort by Name</button>
+    <br><br>
+
+    <table border="1" cellpadding="10">
+        <thead>
+            <tr>
+                <th>Number</th>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Course</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="studentTable">
+        </tbody>
+    </table>
+
+    
+    <p><strong>Total Students: </strong><span id="totalStudentsCount">0</span></p>
+
+    <script>
+        // Array used as temporary storage
+        let students = [];
+
+        // CREATE and UPDATE
+        function saveStudent() {
+            let id = document.getElementById("studentId").value.trim();
+            let name = document.getElementById("studentName").value.trim();
+            let course = document.getElementById("studentCourse").value.trim();
+            let editIndex = parseInt(document.getElementById("editIndex").value);
+
+            // Validation for empty fields
+            if (id == "" || name == "" || course == "") {
+                alert("Please complete all fields.");
+                return;
+            }
+
+            // ENHANCEMENT: Check for unique Student ID and Name using manual loop
+            for (let i = 0; i < students.length; i++) {
+                // Ignore the record being edited during an UPDATE
+                if (i !== editIndex) {
+                    if (students[i].id.toLowerCase() === id.toLowerCase()) {
+                        alert("Student ID already exists! Please use a unique ID.");
+                        return;
+                    }
+                    if (students[i].name.toLowerCase() === name.toLowerCase()) {
+                        alert("Student Name already exists! Duplicate names are not allowed.");
+                        return;
+                    }
+                }
+            }
+
+            if (editIndex == -1) {
+                // CREATE
+                let newStudent = {
+                    id: id,
+                    name: name,
+                    course: course
+                };
+                // Add data without using push()
+                students[students.length] = newStudent;
+                alert("Student added successfully.");
+            } else {
+                // UPDATE
+                students[editIndex].id = id;
+                students[editIndex].name = name;
+                students[editIndex].course = course;
+                alert("Student updated successfully.");
+            }
+
+            clearForm();
+            displayStudents(students);
+        }
+
+        // READ / DISPLAY (Accepts a list array to render)
+        function displayStudents(listToRender) {
+            let table = document.getElementById("studentTable");
+            table.innerHTML = "";
+
+            // Update Total Count
+            document.getElementById("totalStudentsCount").innerHTML = students.length;
+
+            if (listToRender.length == 0) {
+                table.innerHTML = "<tr>" +
+                    "<td colspan='5'>No student records found.</td>" +
+                    "</tr>";
+                return;
+            }
+
+            for (let index = 0; index < listToRender.length; index++) {
+                // Find original index in students array for edit/delete buttons
+                let originalIndex = -1;
+                for (let j = 0; j < students.length; j++) {
+                    if (students[j].id === listToRender[index].id) {
+                        originalIndex = j;
+                        break;
+                    }
+                }
+
+                table.innerHTML +=
+                    "<tr>" +
+                    "<td>" + (index + 1) + "</td>" +
+                    "<td>" + listToRender[index].id + "</td>" +
+                    "<td>" + listToRender[index].name + "</td>" +
+                    "<td>" + listToRender[index].course + "</td>" +
+                    "<td>" +
+                    "<button onclick='editStudent(" + originalIndex + ")'>Edit</button> " +
+                    "<button onclick='deleteStudent(" + originalIndex + ")'>Delete</button>" +
+                    "</td>" +
+                    "</tr>";
+            }
+        }
+
+        // ENHANCEMENT: Search Student feature without predefined array functions
+        function searchStudents() {
+            let query = document.getElementById("searchInput").value.toLowerCase().trim();
+            
+            if (query === "") {
+                displayStudents(students);
+                return;
+            }
+
+            let searchResults = [];
+            
+            // Manual loop for filtering based on ID or Name
+            for (let i = 0; i < students.length; i++) {
+                let idMatch = students[i].id.toLowerCase().indexOf(query) !== -1;
+                let nameMatch = students[i].name.toLowerCase().indexOf(query) !== -1;
+                
+                if (idMatch || nameMatch) {
+                    searchResults[searchResults.length] = students[i];
+                }
+            }
+
+            displayStudents(searchResults);
+        }
+
+        // ENHANCEMENT: Sort by Name feature using Bubble Sort algorithm (without sort())
+        function sortByName() {
+            // Manual Bubble Sort on the students array
+            for (let i = 0; i < students.length - 1; i++) {
+                for (let j = 0; j < students.length - 1 - i; j++) {
+                    if (students[j].name.toLowerCase() > students[j + 1].name.toLowerCase()) {
+                        // Swap elements
+                        let temp = students[j];
+                        students[j] = students[j + 1];
+                        students[j + 1] = temp;
+                    }
+                }
+            }
+
+            displayStudents(students);
+        }
+
+        // Select a student for editing
+        function editStudent(index) {
+            document.getElementById("studentId").value = students[index].id;
+            document.getElementById("studentName").value = students[index].name;
+            document.getElementById("studentCourse").value = students[index].course;
+            document.getElementById("editIndex").value = index;
+        }
+
+        // DELETE
+        function deleteStudent(index) {
+            let answer = confirm("Are you sure you want to delete this student?");
+            if (answer == false) {
+                return;
+            }
+
+            // Move every item after the selected index one position to the left
+            for (let position = index; position < students.length - 1; position++) {
+                students[position] = students[position + 1];
+            }
+
+            // Reduce array length to remove last item
+            students.length = students.length - 1;
+
+            clearForm();
+            displayStudents(students);
+            alert("Student deleted successfully.");
+        }
+
+        // Clear the input fields
+        function clearForm() {
+            document.getElementById("studentId").value = "";
+            document.getElementById("studentName").value = "";
+            document.getElementById("studentCourse").value = "";
+            document.getElementById("editIndex").value = "-1";
+            document.getElementById("searchInput").value = "";
+        }
+
+        // Initially display empty table
+        displayStudents(students);
+    </script>
+</body>
+</html>
