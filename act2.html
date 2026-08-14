@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Activity 2 - Search for a Value</title>
+</head>
+<body>
+
+    <h2>Activity 2: Search for a Value</h2>
+
+    <label>Enter numbers (separated by commas):</label><br>
+    <input type="text" id="arrayInput" value="10, 25, 5, 40, 15" style="width: 300px;"><br><br>
+
+    <label>Enter value to search:</label><br>
+    <input type="text" id="searchValue">
+    <button onclick="searchArray()">Search</button>
+
+    <hr>
+
+    <h3>Results:</h3>
+    <p id="originalDisplay"></p>
+    <div id="resultDisplay"></div>
+
+    <script>
+        function searchArray() {
+            let rawInput = document.getElementById("arrayInput").value;
+            let targetInput = document.getElementById("searchValue").value.trim();
+
+            let resultContainer = document.getElementById("resultDisplay");
+            let originalContainer = document.getElementById("originalDisplay");
+
+            if (targetInput === "" || rawInput.trim() === "") {
+                alert("Please complete both input fields.");
+                return;
+            }
+
+            let numbers = [];
+            let currentNum = "";
+
+            for (let i = 0; i < rawInput.length; i++) {
+                let char = rawInput[i];
+                if (char === ",") {
+                    if (currentNum.trim() !== "") {
+                        numbers[numbers.length] = Number(currentNum.trim());
+                        currentNum = "";
+                    }
+                } else {
+                    currentNum += char;
+                }
+            }
+            if (currentNum.trim() !== "") {
+                numbers[numbers.length] = Number(currentNum.trim());
+            }
+
+            let target = Number(targetInput);
+
+            originalContainer.innerHTML = "<strong>Array Elements:</strong> [" + numbers.join(", ") + "]";
+
+            let found = false;
+            let foundIndex = -1;
+
+            for (let i = 0; i < numbers.length; i++) {
+                if (numbers[i] === target) {
+                    found = true;
+                    foundIndex = i;
+                    break;
+                }
+            }
+
+            if (found) {
+                resultContainer.innerHTML = "<p style='color: green;'><strong>Value Found!</strong><br>" +
+                    "Value: <strong>" + target + "</strong><br>" +
+                    "Index: <strong>" + foundIndex + "</strong></p>";
+            } else {
+                resultContainer.innerHTML = "<p style='color: red;'><strong>Value " + target + " does not exist in the array.</strong></p>";
+            }
+        }
+    </script>
+</body>
+</html>
