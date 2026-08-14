@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Activity 3 - Sort the Entered Array</title>
+</head>
+<body>
+
+    <h2>Activity 3: Sort the Entered Array</h2>
+
+    <label>Enter numbers (separated by commas):</label><br>
+    <input type="text" id="arrayInput" value="45, 12, 89, 7, 23" style="width: 300px;">
+    <button onclick="processSort()">Sort Array</button>
+
+    <hr>
+
+    <h3>1. Original Array (Before Sorting)</h3>
+    <p id="originalArrayDisplay"></p>
+    <div id="originalIndexDisplay"></div>
+
+    <hr>
+
+    <h3>2. Sorted Array (After Sorting)</h3>
+    <p id="sortedArrayDisplay"></p>
+    <div id="sortedIndexDisplay"></div>
+
+    <script>
+        function processSort() {
+            let rawInput = document.getElementById("arrayInput").value;
+
+            if (rawInput.trim() === "") {
+                alert("Please enter numbers to sort.");
+                return;
+            }
+
+            let originalNumbers = [];
+            let currentNum = "";
+
+            for (let i = 0; i < rawInput.length; i++) {
+                let char = rawInput[i];
+                if (char === ",") {
+                    if (currentNum.trim() !== "") {
+                        originalNumbers[originalNumbers.length] = Number(currentNum.trim());
+                        currentNum = "";
+                    }
+                } else {
+                    currentNum += char;
+                }
+            }
+            if (currentNum.trim() !== "") {
+                originalNumbers[originalNumbers.length] = Number(currentNum.trim());
+            }
+
+            let sortedNumbers = [];
+            for (let i = 0; i < originalNumbers.length; i++) {
+                sortedNumbers[sortedNumbers.length] = originalNumbers[i];
+            }
+
+            document.getElementById("originalArrayDisplay").innerHTML = 
+                "<strong>Original Array:</strong> [" + originalNumbers.join(", ") + "]";
+
+            let originalTable = "<table border='1' cellpadding='5'><tr><th>Index</th><th>Value</th></tr>";
+            for (let i = 0; i < originalNumbers.length; i++) {
+                originalTable += "<tr><td>" + i + "</td><td>" + originalNumbers[i] + "</td></tr>";
+            }
+            originalTable += "</table>";
+            document.getElementById("originalIndexDisplay").innerHTML = originalTable;
+
+            for (let i = 0; i < sortedNumbers.length - 1; i++) {
+                for (let j = 0; j < sortedNumbers.length - 1 - i; j++) {
+                    if (sortedNumbers[j] > sortedNumbers[j + 1]) {
+                        let temp = sortedNumbers[j];
+                        sortedNumbers[j] = sortedNumbers[j + 1];
+                        sortedNumbers[j + 1] = temp;
+                    }
+                }
+            }
+
+            document.getElementById("sortedArrayDisplay").innerHTML = 
+                "<strong>Sorted Array:</strong> [" + sortedNumbers.join(", ") + "]";
+
+            let sortedTable = "<table border='1' cellpadding='5'><tr><th>Index</th><th>Value</th></tr>";
+            for (let i = 0; i < sortedNumbers.length; i++) {
+                sortedTable += "<tr><td>" + i + "</td><td>" + sortedNumbers[i] + "</td></tr>";
+            }
+            sortedTable += "</table>";
+            document.getElementById("sortedIndexDisplay").innerHTML = sortedTable;
+        }
+    </script>
+</body>
+</html>
